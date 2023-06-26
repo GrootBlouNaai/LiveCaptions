@@ -311,13 +311,22 @@ void line_generator_break(struct line_generator *lg) {
 
 void line_generator_set_text(struct line_generator *lg, GtkLabel *lbl) {
     char *head = &lg->output[0];
-    *head = '\0';
+    *head = '\0';    
+
+    static char the_last_printed_line[AC_LINE_MAX];
 
     for(int i=AC_LINE_COUNT-1; i>=0; i--) {
         struct line *curr = &lg->lines[REL_LINE_IDX(lg->current_line, -i)];
         head += sprintf(head, "%s", curr->text);
 
         if(i != 0) head += sprintf(head, "\n");
+
+        if( i == 1){ // print the penultimate line
+            if( strcmp(the_last_printed_line, curr->text) != 0){
+                printf("%s\n", curr->text);
+                strcpy(the_last_printed_line, curr->text);
+            }
+        }
     }
 
     gtk_label_set_markup(lbl, lg->output);
